@@ -1,3 +1,4 @@
+using Assets.Scripts.Util;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,5 +19,13 @@ public class Bullet : MonoBehaviour
     void Start()
     {
         _rigid.velocity = transform.forward * _speed;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(TagLiteral.DEADZONE))
+        {
+            gameObject.SetActive(false);
+        }
     }
 }
