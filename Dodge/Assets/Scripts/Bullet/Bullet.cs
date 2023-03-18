@@ -2,6 +2,7 @@ using Assets.Scripts.Util;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Util.Pool;
 
 public class Bullet : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class Bullet : MonoBehaviour
     private float _speed = 4.0f;
 
     private Rigidbody _rigid;
+
+    public ObjectPool<Bullet> Pool { private get; set; }
 
     private void Awake()
     {
@@ -25,6 +28,7 @@ public class Bullet : MonoBehaviour
     {
         if (other.CompareTag(TagLiteral.DEADZONE))
         {
+            Pool.Release(this);
             gameObject.SetActive(false);
         }
     }

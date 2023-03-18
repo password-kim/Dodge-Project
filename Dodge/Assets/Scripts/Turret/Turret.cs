@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Util.Pool;
 
 public class Turret : MonoBehaviour
 {
@@ -20,9 +21,15 @@ public class Turret : MonoBehaviour
     [SerializeField]
     private Bullet _bullet;
 
+    [Range(5, 100)][SerializeField]
+    private int _defaultCapacity = 10;
+
+    private ObjectPool<Bullet> _bulletPool;
+
     private Vector3 _direction;
 
     const int FIREPOSITION = (int)Parts.FirePosition;
+    
 
     private float _elapsedTime;
     private float _fireCoolTime;
@@ -35,6 +42,7 @@ public class Turret : MonoBehaviour
     {
         _target = GameObject.Find("Player").transform;
         _firePosition = transform.GetChild(FIREPOSITION);
+        _bulletPool = new ObjectPool<Bullet>(GenerateBullet, _defaultCapacity);
     }
 
     // Start is called before the first frame update
@@ -66,7 +74,31 @@ public class Turret : MonoBehaviour
         if (_elapsedTime >= _fireCoolTime)
         {
             _elapsedTime = 0f;
-            Instantiate(_bullet, _firePosition.position, _firePosition.rotation);
+            Bullet bullet = GetBulletFromPool();
+            bullet.transform.position = _firePosition.position;
+            bullet.transform.rotation = _firePosition.rotation;
         }
+    }
+
+    Bullet GetBulletFromPool()
+    {
+        if (_bulletPool.CountInactive > 0)
+        {
+            Bullet bullet = _bulletPool.Get();
+            bullet.gameObject.SetActive(true);
+            bullet.Pool = _bulletPool;
+            return bullet;
+        }
+        else
+        {
+            Bullet bullet = GenerateBullet();
+            bullet.Pool = _bulletPool;
+            return bullet;
+        }
+    }
+
+    Bullet GenerateBullet()
+    {
+        return Instantiate(_bullet);
     }
 }
