@@ -19,6 +19,4 @@ public class Bullet : MonoBehaviour
     {
         _rigid.velocity = transform.forward * _speed;
     }
-
-    
 }
